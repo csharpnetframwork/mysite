@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Ideas{% endblock %}
+
+{% block content %}
+<h1>All Ideas</h1>
+
+<div class="category-filters">
+    <a href="{% url 'idea_list' %}" class="category-button {% if not current_category %}active{% endif %}">
+        All
+    </a>
+    <a href="{% url 'idea_list' %}?category=job" class="category-button {% if current_category == 'job' %}active{% endif %}">
+        Jobs & Internships
+    </a>
+    <a href="{% url 'idea_list' %}?category=resource" class="category-button {% if current_category == 'resource' %}active{% endif %}">
+        Learning Resources
+    </a>
+</div>
+
+{% for idea in ideas %}
+    <div class="idea">
+        <div class="idea-category">{{ idea.get_category_display }}</div>
+        <h2>{{ idea.title|default:"Untitled" }}</h2>
+        {% if idea.company_name %}
+            <p class="company">{{ idea.company_name }}</p>
+        {% endif %}
+        {% if idea.location %}
+            <p class="location">📍 {{ idea.location }}</p>
+        {% endif %}
+        <p>{{ idea.description }}</p>
+        {% if idea.image_url %}
+            <img src="{{ idea.image_url }}" alt="Idea Image">
+        {% endif %}
+        {% if idea.application_url %}
+            <a href="{{ idea.application_url }}" class="apply-button" target="_blank">Apply Now</a>
+        {% endif %}
+        <div class="idea-meta">
+            <p>Posted by: {{ idea.user.username }} on {{ idea.created_at|date:"F j, Y" }}</p>
+            <div class="idea-actions">
+                <a href="{% url 'like_idea' idea.id %}" class="action-button">
+                    ❤️ {{ idea.likes.count }}
+                </a>
+                <a href="{% url 'comment_idea' idea.id %}" class="action-button">
+                    💬 Comment
+                </a>
+                {% if idea.user == user %}
+                    <a href="{% url 'edit_idea' idea.id %}" class="action-button">✏️ Edit</a>
+                    <a href="{% url 'delete_idea' idea.id %}" class="action-button">🗑️ Delete</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% empty %}
+    <p class="no-ideas">No ideas yet. <a href="{% url 'create_idea' %}">Add one!</a></p>
+{% endfor %}
+{% endblock %}
